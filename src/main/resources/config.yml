@@ -1,0 +1,15 @@
+sit-offset: 0.175
+
+world-restriction:
+  type: "blacklist"
+  list:
+    - "disabled_world_name"
+
+# メッセージ設定
+messages:
+  prefix: "§7[&6SimpleSit&7] &r"
+  reload: "&a設定をリロードしました"
+  no-permission: "&c権限がありません"
+  disabled-world: "&cこのワールドでは座れません"
+  only-player: "&cプレイヤーのみ実行可能です"
+  sit-deny: "&cここで座ることはできません"

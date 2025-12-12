@@ -1,0 +1,11 @@
+name: SimpleSit
+version: '1.0-SNAPSHOT'
+main: net.azisaba.simplesit.SimpleSit
+api-version: '1.15'
+commands:
+  sit:
+    description: 座ります
+    usage: /sit
+permissions:
+  simplesit.admin:
+    default: op
