@@ -19,7 +19,6 @@ public class PlayerDeathListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
         seatManager.clearSeatState(player);
-        event.getDrops().clear();
     }
 
     @EventHandler
