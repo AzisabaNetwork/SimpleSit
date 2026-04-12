@@ -24,6 +24,7 @@ public class SitListener implements Listener {
     public void onRightClick(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         Player player = event.getPlayer();
+        if (!player.getInventory().getItemInMainHand().getType().equals(Material.AIR)) return;
         if (player.isSneaking()) return;
         if (event.getItem() != null && event.getItem().getType() != Material.AIR) return;
         if (!seatManager.isWorldEnabled(player.getWorld()) && !player.hasPermission("simplesit.admin")) return;

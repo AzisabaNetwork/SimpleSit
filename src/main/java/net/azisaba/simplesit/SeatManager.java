@@ -154,7 +154,17 @@ public class SeatManager {
         previousLocations.remove(uuid);
     }
 
+    public void clearSeatState(Player player) {
+        if (player == null) return;
+        Entity vehicle = player.getVehicle();
+        if (vehicle != null && isCustomSeat(vehicle)) {
+            vehicle.remove();
+        }
+        removeData(player.getUniqueId());
+    }
+
     public boolean isCustomSeat(Entity entity) {
+        if (entity == null) return false;
         return entity.getScoreboardTags().contains(SEAT_TAG);
     }
 
