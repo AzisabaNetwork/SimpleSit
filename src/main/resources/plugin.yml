@@ -1,11 +1,17 @@
 name: SimpleSit
 version: '${version}'
 main: net.azisaba.simplesit.SimpleSit
-api-version: '1.15'
+api-version: '1.20'
 commands:
   sit:
     description: 座ります
-    usage: /sit
+    usage: /sit [reload|toggle]
+  sittoggle:
+    description: 階段などの右クリック着席を切り替えます
+    usage: /sittoggle
 permissions:
   simplesit.admin:
     default: op
+  simplesit.toggle:
+    description: 階段などの右クリック着席の切り替え権限
+    default: true

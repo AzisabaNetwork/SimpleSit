@@ -1,5 +1,8 @@
 sit-offset: 0.175
 
+# 階段やハーフブロックなどを右クリックして座る機能の有効/無効
+right-click-sit: true
+
 world-restriction:
   type: "blacklist"
   list:
@@ -7,9 +10,12 @@ world-restriction:
 
 # メッセージ設定
 messages:
-  prefix: "§7[&6SimpleSit&7] &r"
+  prefix: "&7[&6SimpleSit&7] &r"
   reload: "&a設定をリロードしました"
   no-permission: "&c権限がありません"
   disabled-world: "&cこのワールドでは座れません"
   only-player: "&cプレイヤーのみ実行可能です"
   sit-deny: "&cここで座ることはできません"
+  toggle-enabled: "&a階段などの右クリック着席を有効にしました"
+  toggle-disabled: "&c階段などの右クリック着席を無効にしました"
+  right-click-disabled: "&c階段などの右クリック着席機能は無効化されています"
