@@ -5,13 +5,13 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.type.Slab;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import net.azisaba.simplesit.data.PlayerManager;
 import net.azisaba.simplesit.data.PlayerSettings;
@@ -97,8 +97,8 @@ public class SeatManager {
     public boolean isWorldEnabled(World world) {
         if (world == null) return true;
         String name = world.getName();
-        if (isWhitelist) return !restrictedWorlds.contains(name);
-        else return restrictedWorlds.contains(name);
+        if (isWhitelist) return restrictedWorlds.contains(name);
+        else return !restrictedWorlds.contains(name);
     }
 
     public double getSitOffset() {
@@ -176,28 +176,62 @@ public class SeatManager {
             s.setArms(false);
             s.setCanPickupItems(false);
             s.setInvulnerable(true);
+            s.setPersistent(false);
             s.addScoreboardTag(SEAT_TAG);
         });
         seat.addPassenger(player);
-        rotateSeatWithPlayer(player, seat);
     }
 
-    private void rotateSeatWithPlayer(Player player, ArmorStand seat) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (!player.isOnline() || !seat.isValid() || player.getVehicle() != seat) {
-                    this.cancel();
-                    if (seat.isValid()) seat.remove();
-                    return;
+    public Location getSafeDismountLocation(Player player, Entity vehicle, Location returnLocation) {
+        Location seatLocation = vehicle != null ? vehicle.getLocation() : player.getLocation();
+        World world = seatLocation.getWorld();
+
+        if (returnLocation != null && returnLocation.getWorld() != null && returnLocation.getWorld().equals(world)) {
+            double distSq = returnLocation.distanceSquared(seatLocation);
+            if (distSq <= 25.0) {
+                Block feetBlock = returnLocation.getBlock();
+                Block headBlock = returnLocation.clone().add(0, 1, 0).getBlock();
+                if (!feetBlock.getType().isSolid() && !headBlock.getType().isSolid()) {
+                    Location safeReturn = returnLocation.clone();
+                    safeReturn.setYaw(player.getLocation().getYaw());
+                    safeReturn.setPitch(player.getLocation().getPitch());
+                    safeReturn.add(0, 0.05, 0);
+                    return safeReturn;
                 }
-                float yaw = player.getLocation().getYaw();
-                Location loc = seat.getLocation();
-                if (loc.getYaw() == yaw) return;
-                loc.setYaw(yaw);
-                seat.teleport(loc);
             }
-        }.runTaskTimer(plugin, 0, 2);
+        }
+
+        Block seatBlock = seatLocation.getBlock();
+        if (seatBlock.isPassable() || seatBlock.isEmpty()) {
+            Block below = seatBlock.getRelative(BlockFace.DOWN);
+            if (below.getType().isSolid()) {
+                seatBlock = below;
+            }
+        }
+
+        double surfaceY = getBlockSurfaceY(seatBlock);
+        return new Location(
+                world,
+                seatBlock.getX() + 0.5,
+                surfaceY + 0.05,
+                seatBlock.getZ() + 0.5,
+                player.getLocation().getYaw(),
+                player.getLocation().getPitch()
+        );
+    }
+
+    private double getBlockSurfaceY(Block block) {
+        if (block.getBlockData() instanceof Slab slab) {
+            return slab.getType() == Slab.Type.BOTTOM ? block.getY() + 0.5 : block.getY() + 1.0;
+        } else if (block.getBlockData() instanceof Stairs stairs) {
+            return stairs.getHalf() == Bisected.Half.BOTTOM ? block.getY() + 0.5 : block.getY() + 1.0;
+        } else if (block.getType().name().contains("CARPET")) {
+            return block.getY() + 0.0625;
+        } else if (block.isPassable() || block.isEmpty()) {
+            return block.getY();
+        } else {
+            return block.getY() + 1.0;
+        }
     }
 
     private float getStairYaw(org.bukkit.block.BlockFace face) {

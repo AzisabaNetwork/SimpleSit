@@ -28,7 +28,7 @@ public class SitListener implements Listener {
         if (!player.getInventory().getItemInMainHand().getType().equals(Material.AIR)) return;
         if (player.isSneaking()) return;
         if (event.getItem() != null && event.getItem().getType() != Material.AIR) return;
-        if (seatManager.isWorldEnabled(player.getWorld()) && !player.hasPermission("simplesit.admin")) return;
+        if (!seatManager.isWorldEnabled(player.getWorld()) && !player.hasPermission("simplesit.admin")) return;
         if (seatManager.isOnCooldown(player.getUniqueId()) || seatManager.isDismounting(player.getUniqueId())) return;
         Block block = event.getClickedBlock();
         if (block == null) return;

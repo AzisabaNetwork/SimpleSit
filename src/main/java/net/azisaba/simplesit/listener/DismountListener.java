@@ -11,6 +11,8 @@ import org.bukkit.event.entity.EntityDismountEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
+import java.util.UUID;
+
 public class DismountListener implements Listener {
 
     private final SimpleSit plugin;
@@ -27,43 +29,40 @@ public class DismountListener implements Listener {
         Entity vehicle = event.getDismounted();
         if (!seatManager.isCustomSeat(vehicle)) return;
 
-        seatManager.setDismounting(player.getUniqueId(), true);
+        UUID uuid = player.getUniqueId();
+        seatManager.setDismounting(uuid, true);
 
-        Location returnLocation = seatManager.popPreviousLocation(player.getUniqueId());
+        Location returnLocation = seatManager.popPreviousLocation(uuid);
         if (player.isDead()) {
-            vehicle.remove();
-            seatManager.setDismounting(player.getUniqueId(), false);
+            if (vehicle.isValid()) {
+                vehicle.remove();
+            }
+            seatManager.setDismounting(uuid, false);
             return;
         }
 
-        Location targetLocation;
-        if (returnLocation != null) {
-            targetLocation = returnLocation.clone();
-            Location currentLocation = player.getLocation();
-            targetLocation.setYaw(currentLocation.getYaw());
-            targetLocation.setPitch(currentLocation.getPitch());
-        } else {
-            targetLocation = vehicle.getLocation().clone().add(0, seatManager.getSitOffset(), 0);
-            targetLocation.setYaw(player.getLocation().getYaw());
-            targetLocation.setPitch(player.getLocation().getPitch());
-        }
-        targetLocation.add(0, 0.1, 0);
+        Location targetLocation = seatManager.getSafeDismountLocation(player, vehicle, returnLocation);
 
-        vehicle.teleport(targetLocation);
+        if (vehicle.isValid()) {
+            vehicle.remove();
+        }
+
+        player.setVelocity(new Vector(0, 0, 0));
+        player.setFallDistance(0);
+        player.teleport(targetLocation);
 
         plugin.getServer().getScheduler().runTask(plugin, () -> {
             try {
                 if (player.isOnline() && !player.isDead()) {
-                    player.setVelocity(new Vector(0, 0, 0));
-                    player.setFallDistance(0);
-                    player.teleport(targetLocation);
+                    if (player.getLocation().getY() < targetLocation.getY() - 0.2) {
+                        player.setVelocity(new Vector(0, 0, 0));
+                        player.setFallDistance(0);
+                        player.teleport(targetLocation);
+                    }
                 }
             } finally {
-                if (vehicle.isValid()) {
-                    vehicle.remove();
-                }
-                seatManager.setDismounting(player.getUniqueId(), false);
-                seatManager.setCooldown(player.getUniqueId());
+                seatManager.setDismounting(uuid, false);
+                seatManager.setCooldown(uuid);
             }
         });
     }
