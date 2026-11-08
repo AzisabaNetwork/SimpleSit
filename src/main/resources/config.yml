@@ -1,13 +1,20 @@
 sit-offset: 0.175
 
+# type: blacklist -> list にあるワールドでは座れない
+# type: whitelist -> list にあるワールドでのみ座れる
+# ワールド名は大文字小文字を区別しない
 world-restriction:
   type: "blacklist"
   list:
     - "disabled_world_name"
 
+# WorldGuard / Towny / ワールド保護系プラグイン等が座席(ArmorStand)の生成や騎乗を
+# キャンセルした場合でも、SimpleSit の座席に限り強制的に許可する
+force-seat: true
+
 # メッセージ設定
 messages:
-  prefix: "§7[&6SimpleSit&7] &r"
+  prefix: "&7[&6SimpleSit&7] &r"
   reload: "&a設定をリロードしました"
   no-permission: "&c権限がありません"
   disabled-world: "&cこのワールドでは座れません"
